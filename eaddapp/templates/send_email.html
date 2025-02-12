@@ -1,0 +1,154 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Send Email</title>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+        <!-- Quill Editor CSS -->
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f6f8;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+    
+            .container {
+                position: relative;
+                width: 400px;
+                background-color: #fff;
+                padding: 20px 30px;
+                border-radius: 12px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+    
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+    
+            h2 {
+                margin: 0;
+                color: #333;
+            }
+    
+            .logout-btn {
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+    
+            .logout-btn:hover {
+                background-color: #c82333;
+            }
+    
+            label {
+                display: block;
+                margin-top: 15px;
+                font-weight: bold;
+                color: #555;
+            }
+    
+            input[type="text"], 
+            input[type="file"] {
+                width: 100%;
+                padding: 10px;
+                margin-top: 5px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                box-sizing: border-box;
+            }
+    
+            #editor {
+                height: 100px;
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                padding: 10px;
+                margin-top: 5px;
+            }
+    
+            button[type="submit"] {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                margin-top: 20px;
+                width: 100%;
+                font-size: 16px;
+            }
+    
+            button[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h2>Send Email</h2>
+                <form action="{% url 'logout' %}" method="post" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </div>
+    
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <label for="subject">Subject:</label>
+                <input type="text" name="subject" required>
+    
+                <label for="content">Email Content:</label>
+                <div id="editor"></div> <!-- Quill Editor -->
+                <input type="hidden" name="content" id="hidden-content"> <!-- Hidden field to store formatted content -->
+    
+                <label for="file">Upload File (optional attachment):</label>
+                <input type="file" name="file">
+    
+                <label for="csv_file">Upload CSV of Email Addresses:</label>
+                <input type="file" name="csv_file" accept=".csv" required>
+    
+                <button type="submit">Send Email</button>
+            </form>
+        </div>
+    
+        <!-- Quill Editor JS -->
+        <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    
+        <script>
+            // Initialize Quill editor
+            var quill = new Quill('#editor', {
+                theme: 'snow'
+            });
+    
+            // Capture the content on form submission
+            document.querySelector('form').onsubmit = function() {
+                var contentInput = document.querySelector('#hidden-content');
+                contentInput.value = quill.root.innerHTML;  // Store formatted HTML content
+            };
+        </script>
+    
+        {% if messages %}
+            <script>
+                {% for message in messages %}
+                    Swal.fire('{{ message.tags|capfirst }}', '{{ message }}', '{{ message.tags }}');
+                {% endfor %}
+            </script>
+        {% endif %}
+    </body>
+    </html>
+    
